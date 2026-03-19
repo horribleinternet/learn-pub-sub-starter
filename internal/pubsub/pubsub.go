@@ -38,5 +38,11 @@ func DeclareAndBind(
 		ch.Close()
 		return nil, amqp.Queue{}, err
 	}
+	err = ch.QueueBind(queueName, key, exchange, false, nil)
+	if err != nil {
+		ch.QueueDelete(queueName, false, false, false)
+		ch.Close()
+		return nil, amqp.Queue{}, err
+	}
 	return ch, queue, nil
 }
