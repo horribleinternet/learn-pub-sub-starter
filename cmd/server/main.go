@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"learn-pub-sub-starter/internal/pubsub"
+	"learn-pub-sub-starter/internal/routing"
 	"os"
 	"os/signal"
 
@@ -18,6 +20,15 @@ func main() {
 	}
 	defer connect.Close()
 	fmt.Println("Peril server started.")
+	ch, err := connect.Channel()
+	if err != nil {
+		fmt.Println("Peril server unable to open channel: ", err.Error())
+		return
+	}
+	err = pubsub.PublishJSON(ch, routing.ExchangePerilDirect, routing.PauseKey, routing.PlayingState{IsPaused: true})
+	if err != nil {
+		fmt.Println("Error sending test message: ", err.Error())
+	}
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 	<-signalChan
